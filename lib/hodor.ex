@@ -1,10 +1,14 @@
 defmodule Hodor do
-  def init(default_options) do
-    default_options
-  end
+  use Application
 
-  def call(conn, _options) do
-    conn
-    |> Plug.Conn.send_resp(200, "HODOR")
+  def start(_type, _args) do
+    import Supervisor.Spec, warn: false
+
+    children = [
+      # worker(__MODULE__, [], function: :start_server)
+      {Plug.Adapters.Cowboy2, scheme: :http, plug: Hodor.Server, options: [port: 4040]}
+    ]
+
+    Supervisor.start_link(children, [strategy: :one_for_one])
   end
 end
